@@ -6,7 +6,7 @@ int main(int argc, char ** argv){
     int init_people = 20, i=0, j=0, status;
     unsigned long genes = 5;
 
-    population pop;
+    population population;
     individual ind_list[init_people];
 
     for(i=0;i<sizeof(ind_list)/sizeof(individual);i++){
@@ -15,13 +15,13 @@ int main(int argc, char ** argv){
         }
     }
 
-    pop.size = init_people;
-    pop.numbers_of_a = 0;
-    pop.numbers_of_b = 0;
+    population.size = init_people;
+    population.numbers_of_a = 0;
+    population.numbers_of_b = 0;
 
-    generate_population(&pop, &ind_list[0], genes);
-    print_population(&pop, &ind_list[0]);
-    start_population(&pop, &ind_list[0]);
+    generate_population(&population, &ind_list[0], genes);
+    print_population(&population, &ind_list[0]);
+    start_population(&population, &ind_list[0]);
 
     while(wait(&status) > 0){
         //do nothing
