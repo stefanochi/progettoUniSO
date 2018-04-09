@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 
-#define MAX_NAME_SIZE 1024
+#define MAX_NAME_SIZE 100
 #define TYPE_A 0
 #define TYPE_B 1
 
