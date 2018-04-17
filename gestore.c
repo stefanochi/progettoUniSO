@@ -27,9 +27,8 @@ int main(int argc, char ** argv){
     pop->numbers_of_b = 0;
 
     generate_population(pop, ind_list, genes);
-    print_population(pop, ind_list);
     start_population(pop, ind_list);
-
+    print_population(pop, ind_list);
 
     while(wait(&status) > 0){
         //do nothing

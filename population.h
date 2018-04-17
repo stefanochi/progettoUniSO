@@ -25,3 +25,5 @@ int generate_individual(individual* ind, int type, unsigned long parent_gcd, uns
 int generate_population(population* pop, individual* ind_list, unsigned long genes);
 int start_population(population * pop, individual * ind_list);
 int print_population(population* pop, individual* ind_list);
+
+long gcd(long gene_a, long gene_b);

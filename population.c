@@ -86,8 +86,23 @@ int start_population(population * pop, individual * ind_list){
 int print_population(population* pop, individual* ind_list){
     int i;
 
-    printf("TYPE\tNAME\tGENE\n");
+    printf("PID\tTYPE\tNAME\tGENE\n");
     for(i=0; i<pop->size; i++){
-        printf("%i\t%s\t%lu\n", (ind_list+i)->type, (ind_list+i)->name, (ind_list+i)->gene);
+        printf("%d\t%i\t%s\t%lu\n", (ind_list+i)->pid, (ind_list+i)->type, (ind_list+i)->name, (ind_list+i)->gene);
     }
+}
+
+long gcd(long gene_a, long gene_b){
+  if (gene_a == 0 || gene_b == 0){
+    return 0;
+  }
+  if (gene_a == gene_b){
+    return gene_a;
+  }
+  else{
+    if (gene_a>gene_b){
+      return gcd(gene_a-gene_b, gene_b);
+    }
+    else return gcd(gene_a, gene_b-gene_a);
+  }
 }
