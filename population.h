@@ -22,6 +22,7 @@ typedef struct population{
 } population;
 
 void wait_ready(int id_SemReady);
+void ind_ready(int id_SemReady);
 
 int start_individual(individual * ind);
 int generate_individual(individual* ind, int type, unsigned long parent_gcd, unsigned long genes);
