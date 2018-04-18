@@ -2,22 +2,28 @@
 #include <unistd.h>
 #include "population.h"
 
-void wait_ready(int id_SemReady){
+#define NUM_SEM_READY 1
+
+int get_sem_id(int key){
+    return semget (key, NUM_SEM_READY, 0600 | IPC_CREAT);
+}
+
+void wait_ready(int id_semReady){
   struct sembuf ops;
   ops.sem_num = 0;
   ops.sem_op =  0;
   ops.sem_flg = 0;
 
-  semop(id_SemReady, &ops, 1);
+  semop(id_semReady, &ops, 1);
 }
 
-void ind_ready(int id_SemReady){
+void ind_ready(int id_semReady){
     struct sembuf ops;
     ops.sem_num = 0;
     ops.sem_op = -1;
     ops.sem_flg = 0;
 
-    semop(id_SemReady, &ops, 1);
+    semop(id_semReady, &ops, 1);
 }
 
 int generate_individual(individual* ind, int type, unsigned long parent_gcd, unsigned long genes){

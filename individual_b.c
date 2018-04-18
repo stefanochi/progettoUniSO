@@ -5,6 +5,10 @@ int main(int argc, char ** argv){
   population * pop;
   pop = createAttach (getppid(), 0);
 
+  int id_semReday = get_sem_id(int key);
+  ind_reday(id_semReady);
+  wait_ready(id_semReady);
+
   individual* ind_list;
   ind_list = (individual*) pop + sizeof(population);
 

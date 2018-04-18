@@ -21,8 +21,9 @@ typedef struct population{
     unsigned int numbers_of_b;
 } population;
 
-void wait_ready(int id_SemReady);
-void ind_ready(int id_SemReady);
+int get_sem_id(int key);
+void wait_ready(int id_semReady);
+void ind_ready(int id_semReady);
 
 int start_individual(individual * ind);
 int generate_individual(individual* ind, int type, unsigned long parent_gcd, unsigned long genes);
