@@ -27,6 +27,7 @@ void ind_ready(int id_semReady);
 
 int start_individual(individual * ind);
 int generate_individual(individual* ind, int type, unsigned long parent_gcd, unsigned long genes);
+individual* get_ind_by_pid(int pid, individual *ind_list, population *pop);
 
 int generate_population(population* pop, individual* ind_list, unsigned long genes);
 int start_population(population * pop, individual * ind_list);

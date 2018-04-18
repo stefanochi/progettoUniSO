@@ -16,7 +16,6 @@ void wait_ready(int id_semReady){
 
   semop(id_semReady, &ops, 1);
 }
-
 void ind_ready(int id_semReady){
     struct sembuf ops;
     ops.sem_num = 0;
@@ -72,6 +71,17 @@ int start_individual(individual * ind){
     return pid;
 
 
+}
+
+individual* get_ind_by_pid(int pid, individual *ind_list, population *pop){
+    individual * my_ind;
+    for(int i; i<pop->size; i++){
+      if ((ind_list+i)->pid == pid){
+        my_ind = ind_list+i;
+        return my_ind;
+      }
+    }
+    return NULL;
 }
 
 int generate_population(population* pop, individual* ind_list, unsigned long genes){
