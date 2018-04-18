@@ -11,8 +11,8 @@ int main(int argc, char ** argv){
     unsigned long genes = 5;
     int key = getpid();
 
-    int id_semReady = get_sem_id(int key);
-    semctl (id_SemReady, 0, SETVAL, init_people);
+    int id_semReady = get_sem_id(key);
+    semctl (id_semReady, 0, SETVAL, init_people);
 
 
     population* pop;

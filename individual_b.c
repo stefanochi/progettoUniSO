@@ -5,8 +5,12 @@ int main(int argc, char ** argv){
   population * pop;
   pop = createAttach (getppid(), 0);
 
-  int id_semReday = get_sem_id(int key);
-  ind_reday(id_semReady);
+  int id_semReady;
+  int key_semReady = getppid();
+
+
+  id_semReady = get_sem_id(key_semReady);
+  ind_ready(id_semReady);
   wait_ready(id_semReady);
 
   individual* ind_list;
@@ -31,7 +35,7 @@ int main(int argc, char ** argv){
       }
     }
   }
-  printf("pid A = %d\n", ind_a->pid);
+  printf("[%d] pid A = %d\n",getpid(), ind_a->pid);
 
 
   exit(0);
