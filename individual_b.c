@@ -16,13 +16,8 @@ int main(int argc, char ** argv){
   individual* ind_list;
   ind_list = (individual*) pop + sizeof(population);
 
-  int pid = getpid();
   individual * my_ind;
-  for(int i; i<pop->size; i++){
-    if ((ind_list+i)->pid == pid){
-      my_ind = ind_list+i;
-    }
-  }
+  my_ind = get_ind_by_pid(getpid(), ind_list, pop);
 
   long max_gcd=0;
   individual * ind_a;
