@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/sem.h>
+
 
 
 #define MAX_NAME_SIZE 100
@@ -18,6 +20,8 @@ typedef struct population{
     unsigned int numbers_of_a;
     unsigned int numbers_of_b;
 } population;
+
+void wait_ready(int id_SemReady);
 
 int start_individual(individual * ind);
 int generate_individual(individual* ind, int type, unsigned long parent_gcd, unsigned long genes);

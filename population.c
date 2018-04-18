@@ -2,6 +2,14 @@
 #include <unistd.h>
 #include "population.h"
 
+void wait_ready(int id_SemReady){
+  struct sembuf ops;
+  ops.sem_num = 0;
+  ops.sem_op =  0;
+  ops.sem_flg = 0;
+
+  semop(id_SemReady, &ops, 1);
+}
 
 int generate_individual(individual* ind, int type, unsigned long parent_gcd, unsigned long genes){
     char name;
