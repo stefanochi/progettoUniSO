@@ -12,7 +12,7 @@ int main(int argc, char ** argv){
     int key = getpid();
 
     int id_semReady = get_sem_id(key);
-    semctl (id_semReady, 0, SETVAL, init_people);
+    semctl (id_semReady, 0, SETVAL, init_people + 1);
 
 
     population* pop;
@@ -34,14 +34,16 @@ int main(int argc, char ** argv){
 
     generate_population(pop, ind_list, genes);
     start_population(pop, ind_list);
-    wait_ready(id_semReady);
     print_population(pop, ind_list);
+    ind_ready(id_semReady);
+    wait_ready(id_semReady);
 
     while(wait(&status) > 0){
         //do nothing
     }
 
     removeShm(key, dimension);
+    semctl(id_semReady, 0, IPC_RMID);
 
     exit(0);
 }
