@@ -1,10 +1,10 @@
 #include "shm.h"
 
-population* createAttach(int key, int dimension){
-    population * pop;
+void* createAttach(int key, int dimension){
+    void * p;
     int shm_id = shmget(key, dimension, 0600 | IPC_CREAT);
-    pop = shmat(shm_id, NULL, 0);
-    return pop;
+    p = shmat(shm_id, NULL, 0);
+    return p;
 }
 
 void removeShm(int key, int dimension){

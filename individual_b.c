@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include "shm.h"
+#include "population.h"
 
 int main(int argc, char ** argv){
   population * pop;

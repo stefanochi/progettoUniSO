@@ -3,7 +3,7 @@
 #include <sys/shm.h>
 #include <unistd.h>
 #include "shm.h"
-
+#include "population.h"
 
 int main(int argc, char ** argv){
 
@@ -35,7 +35,7 @@ int main(int argc, char ** argv){
     generate_population(pop, ind_list, genes);
     start_population(pop, ind_list);
     print_population(pop, ind_list);
-    
+
     ind_ready(id_semReady);
     wait_ready(id_semReady);
 

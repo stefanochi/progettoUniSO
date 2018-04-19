@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/sem.h>
-
+#include <time.h>
+#include <unistd.h>
 
 
 #define MAX_NAME_SIZE 100

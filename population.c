@@ -1,5 +1,3 @@
-#include <time.h>
-#include <unistd.h>
 #include "population.h"
 
 #define NUM_SEM_READY 1
