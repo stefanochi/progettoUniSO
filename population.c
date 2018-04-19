@@ -90,15 +90,15 @@ int generate_population(population* pop, individual* ind_list, unsigned long gen
     srand(time(NULL));
     for(i=0; i<pop->size; i++){
         if(pop->numbers_of_a == 0){
-            generate_individual(ind_list + i, TYPE_A, 0, genes);
+            generate_individual(ind_list + i, TYPE_A, 2, genes);
             pop->numbers_of_a++;
         }
         else if(pop->numbers_of_b == 0){
-            generate_individual(ind_list + i, TYPE_B, 0, genes);
+            generate_individual(ind_list + i, TYPE_B, 2, genes);
             pop->numbers_of_b++;
         }
         else{
-            if(generate_individual(ind_list + i, -1, 0, genes) == 0)
+            if(generate_individual(ind_list + i, -1, 2, genes) == 0)
                 pop->numbers_of_a++;
             else
                 pop->numbers_of_b++;
