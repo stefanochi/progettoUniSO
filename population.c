@@ -38,7 +38,7 @@ int generate_individual(individual* ind, int type, unsigned long parent_gcd, uns
     }
     ind->name[i] = name;
 
-    ind->gene = rand() % genes + parent_gcd;
+    ind->gene = (rand() % genes) + parent_gcd;
 
     return ind->type;
 }
