@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include "shm.h"
 #include "population.h"
+#include "msq.h"
 
 int main(int argc, char ** argv){
   population * pop;
@@ -18,7 +19,7 @@ int main(int argc, char ** argv){
   ind_list = (individual*) pop + sizeof(population);
 
   individual * my_ind;
-  my_ind = get_ind_by_pid(getpid(), ind_list, pop);
+  my_ind = (get_ind_by_pid(getpid(), ind_list, pop));
 
   long max_gcd=0;
   individual * ind_a;
@@ -33,6 +34,12 @@ int main(int argc, char ** argv){
   }
   printf("[%d] pid A = %d\n",getpid(), ind_a->pid);
 
+  int msq_a = get_message_id(ind_a->pid);
+  request * req = malloc(sizeof(request));
+  req->pid = my_ind->pid;
+  req->gene = my_ind->gene;
+
+  send_request(msq_a, req);
 
   exit(0);
 }

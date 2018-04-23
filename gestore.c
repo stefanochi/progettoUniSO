@@ -7,7 +7,7 @@
 
 int main(int argc, char ** argv){
 
-    int init_people = 20, i=0, j=0, status;
+    int init_people = 5, i=0, j=0, status;
     unsigned long genes = 5;
     int key = getpid();
 
