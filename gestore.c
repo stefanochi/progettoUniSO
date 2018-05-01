@@ -2,8 +2,15 @@
 #include <sys/wait.h>
 #include <sys/shm.h>
 #include <unistd.h>
+#include <signal.h>
 #include "shm.h"
 #include "population.h"
+
+static volatile int keepRunning = 1;
+
+void intHandler(int dummy) {
+    keepRunning = 0;
+}
 
 int main(int argc, char ** argv){
 
@@ -14,7 +21,6 @@ int main(int argc, char ** argv){
     int id_semReady = get_sem_id(key);
     semctl (id_semReady, 0, SETVAL, init_people + 1);
 
-
     population* pop;
     individual* ind_list;
 
@@ -22,6 +28,15 @@ int main(int argc, char ** argv){
 
     pop = createAttach(key, dimension);
     ind_list = (individual*) pop + sizeof(population);
+
+    struct sigaction act;
+    struct sigaction oldact;
+    sigset_t my_mask;
+    sigemptyset(&my_mask);
+    act.sa_handler = &intHandler;
+    act.sa_mask = my_mask;
+    act.sa_flags = 0;
+    sigaction(SIGINT, &act, &oldact);
 
     for(i=0;i<init_people/sizeof(individual);i++){
         for(j=0;j<sizeof(ind_list[i].name);j++){
@@ -32,6 +47,8 @@ int main(int argc, char ** argv){
     pop->numbers_of_a = 0;
     pop->numbers_of_b = 0;
 
+    srand(0);
+
     generate_population(pop, ind_list, genes);
     start_population(pop, ind_list);
     print_population(pop, ind_list);
@@ -39,9 +56,11 @@ int main(int argc, char ** argv){
     ind_ready(id_semReady);
     wait_ready(id_semReady);
 
-    while(wait(&status) > 0){
+    while(wait(&status) > 0 && keepRunning){
         //do nothing
     }
+
+    kill(-getpid(), SIGINT);
 
     removeShm(key, dimension);
     semctl(id_semReady, 0, IPC_RMID);
