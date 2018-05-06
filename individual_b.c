@@ -43,16 +43,16 @@ int main(int argc, char ** argv){
   population * pop;
   pop = createAttach (getppid(), 0);
 
-  int id_semReady;
+  int id_sem;
   int key_semReady = getppid();
 
-  id_semReady = get_sem_id(key_semReady);
+  id_sem = get_sem_id(key_semReady);
   int msq_b = get_message_id(getpid());
 
   set_handler();
 
-  ind_ready(id_semReady);
-  wait_ready(id_semReady);
+  ind_ready(id_sem);
+  wait_ready(id_sem);
 
   individual* ind_list;
   ind_list = (individual*) pop + sizeof(population);
@@ -64,7 +64,9 @@ int main(int argc, char ** argv){
 
   while(keepRunning){
 
+      entry_read(id_sem, pop);
       ind_a = get_best_partner(pop, ind_list, my_ind);
+      exit_read(id_sem, pop);
 
       int msq_a = get_message_id(ind_a.pid);
 

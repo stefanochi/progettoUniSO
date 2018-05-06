@@ -16,16 +16,16 @@ int main(int argc, char ** argv){
 
     int init_people = 5, i=0, j=0, status;
     unsigned long genes = 5;
-    int key = getpid();
 
-    int id_semReady = get_sem_id(key);
-    semctl (id_semReady, 0, SETVAL, init_people + 1);
+    int key = getpid();
+    int id_sem = get_sem_id(key);
+    set_ready(id_sem, init_people);
+    set_shm_sem(id_sem);
 
     population* pop;
     individual* ind_list;
 
     int dimension = sizeof(individual)*init_people + sizeof(population);
-
     pop = createAttach(key, dimension);
     ind_list = (individual*) pop + sizeof(population);
 
@@ -38,6 +38,7 @@ int main(int argc, char ** argv){
     act.sa_flags = 0;
     sigaction(SIGINT, &act, &oldact);
 
+
     for(i=0;i<init_people/sizeof(individual);i++){
         for(j=0;j<sizeof(ind_list[i].name);j++){
             ind_list[i].name[j] = '\0';
@@ -46,6 +47,8 @@ int main(int argc, char ** argv){
     pop->size = init_people;
     pop->numbers_of_a = 0;
     pop->numbers_of_b = 0;
+    pop->readCount = 0;
+    pop->writeCount = 0;
 
     srand(0);
 
@@ -53,8 +56,8 @@ int main(int argc, char ** argv){
     start_population(pop, ind_list);
     print_population(pop, ind_list);
 
-    ind_ready(id_semReady);
-    wait_ready(id_semReady);
+    ind_ready(id_sem);
+    wait_ready(id_sem);
 
     while(wait(&status) > 0 && keepRunning){
         //do nothing
@@ -63,7 +66,7 @@ int main(int argc, char ** argv){
     kill(-getpid(), SIGINT);
 
     removeShm(key, dimension);
-    semctl(id_semReady, 0, IPC_RMID);
+    semctl(id_sem, 0, IPC_RMID);
 
     exit(0);
 }

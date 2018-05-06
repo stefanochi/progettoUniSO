@@ -30,13 +30,13 @@ int main(int argc, char ** argv){
     individual* ind_list;
     ind_list = (individual*) pop + sizeof(population);
 
-    int id_semReady;
+    int id_sem;
     int key_semReady = getppid();
 
-    id_semReady = get_sem_id(key_semReady);
+    id_sem = get_sem_id(key_semReady);
 
-    ind_ready(id_semReady);
-    wait_ready(id_semReady);
+    ind_ready(id_sem);
+    wait_ready(id_sem);
 
     int msq_a = get_message_id(getpid());
 

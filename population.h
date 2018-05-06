@@ -4,7 +4,6 @@
 #include <time.h>
 #include <unistd.h>
 
-
 #define MAX_NAME_SIZE 100
 #define TYPE_A 0
 #define TYPE_B 1
@@ -20,11 +19,21 @@ typedef struct population{
     unsigned int size;
     unsigned int numbers_of_a;
     unsigned int numbers_of_b;
+    unsigned int readCount;
+    unsigned int writeCount;
 } population;
 
 int get_sem_id(int key);
-void wait_ready(int id_semReady);
-void ind_ready(int id_semReady);
+
+void set_ready(int id_sem, int init_people);
+void wait_ready(int id_sem);
+void ind_ready(int id_sem);
+
+void set_shm_sem(int id_sem);
+void entry_read(int id_sem, population * pop);
+void exit_read(int id_sem, population * pop);
+void entry_write(int id_sem, population * pop);
+void exit_write(int id_sem, population * pop);
 
 int start_individual(individual * ind);
 int generate_individual(individual* ind, int type, unsigned long parent_gcd, unsigned long genes);

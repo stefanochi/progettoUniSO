@@ -1,26 +1,147 @@
 #include "population.h"
 
-#define NUM_SEM_READY 1
+#define SEM_READY 0
+#define NUM_TOTAL_SEM 5
+#define R_MUTEX 1
+#define W_MUTEX 2
+#define READ_TRY 3
+#define RESOURCE 4
 
 int get_sem_id(int key){
-    return semget (key, NUM_SEM_READY, 0600 | IPC_CREAT);
+    return semget (key, NUM_TOTAL_SEM, 0600 | IPC_CREAT);
 }
 
-void wait_ready(int id_semReady){
+void set_ready(int id_sem, int init_people){
+    semctl (id_sem, SEM_READY, SETVAL, init_people + 1);
+}
+void wait_ready(int id_sem){
   struct sembuf ops;
-  ops.sem_num = 0;
+  ops.sem_num = SEM_READY;
   ops.sem_op =  0;
   ops.sem_flg = 0;
 
-  semop(id_semReady, &ops, 1);
+  semop(id_sem, &ops, 1);
 }
-void ind_ready(int id_semReady){
+void ind_ready(int id_sem){
     struct sembuf ops;
-    ops.sem_num = 0;
+    ops.sem_num = SEM_READY;
     ops.sem_op = -1;
     ops.sem_flg = 0;
 
-    semop(id_semReady, &ops, 1);
+    semop(id_sem, &ops, 1);
+}
+
+void set_shm_sem(int id_sem){
+    semctl (id_sem, R_MUTEX, SETVAL, 1);
+    semctl (id_sem, W_MUTEX, SETVAL, 1);
+    semctl (id_sem, READ_TRY, SETVAL, 1);
+    semctl (id_sem, RESOURCE, SETVAL, 1);
+}
+void entry_read(int id_sem, population * pop){
+    struct sembuf sem_ctl[2];
+    sem_ctl[0].sem_num = READ_TRY;//try reading
+    sem_ctl[0].sem_op = -1;
+    sem_ctl[0].sem_flg = 0;
+
+    sem_ctl[1].sem_num = R_MUTEX;//readcout mutex
+    sem_ctl[1].sem_op = -1;
+    sem_ctl[1].sem_flg = 0;
+    semop(id_sem, sem_ctl, 2);
+
+    pop->readCount++;
+
+    if(pop->readCount == 1){
+        sem_ctl[0].sem_num = RESOURCE;
+        sem_ctl[0].sem_op = -1;
+        sem_ctl[0].sem_flg = 0;
+
+        semop(id_sem, sem_ctl, 1);
+    }
+
+    sem_ctl[0].sem_num = R_MUTEX;
+    sem_ctl[0].sem_op = 1;
+    sem_ctl[0].sem_flg = 0;
+
+    sem_ctl[1].sem_num = READ_TRY;
+    sem_ctl[1].sem_op = 1;
+    sem_ctl[1].sem_flg = 0;
+
+    semop(id_sem, sem_ctl, 2);
+}
+void exit_read(int id_sem, population * pop){
+    struct sembuf sem_ctl[2];
+    sem_ctl[0].sem_num = R_MUTEX;
+    sem_ctl[0].sem_op = -1;
+    sem_ctl[0].sem_flg = 0;
+
+    semop(id_sem, sem_ctl, 1);
+    pop->readCount --;
+
+    if(pop->readCount == 0){
+        sem_ctl[0].sem_num = RESOURCE;
+        sem_ctl[0].sem_op = 1;
+        sem_ctl[0].sem_flg = 0;
+
+        semop(id_sem, sem_ctl, 1);
+    }
+
+    sem_ctl[0].sem_num = R_MUTEX;
+    sem_ctl[0].sem_op = 1;
+    sem_ctl[0].sem_flg = 0;
+
+    semop(id_sem, sem_ctl, 1);
+}
+void entry_write(int id_sem, population * pop){
+    struct sembuf sem_ctl[2];
+    sem_ctl[0].sem_num = W_MUTEX;//try reading
+    sem_ctl[0].sem_op = -1;
+    sem_ctl[0].sem_flg = 0;
+    semop(id_sem, sem_ctl, 1);
+
+    pop->writeCount++;
+    if(pop->writeCount == 1){
+        sem_ctl[0].sem_num = READ_TRY;//try reading
+        sem_ctl[0].sem_op = -1;
+        sem_ctl[0].sem_flg = 0;
+        semop(id_sem, sem_ctl, 1);
+    }
+
+    sem_ctl[0].sem_num = W_MUTEX;//try reading
+    sem_ctl[0].sem_op = 1;
+    sem_ctl[0].sem_flg = 0;
+
+    sem_ctl[1].sem_num = RESOURCE;//try reading
+    sem_ctl[1].sem_op = -1;
+    sem_ctl[1].sem_flg = 0;
+
+    semop(id_sem, sem_ctl, 2);
+}
+void exit_write(int id_sem, population * pop){
+    struct sembuf sem_ctl[2];
+    sem_ctl[0].sem_num = RESOURCE;//try reading
+    sem_ctl[0].sem_op = 1;
+    sem_ctl[0].sem_flg = 0;
+
+    sem_ctl[1].sem_num = W_MUTEX;//try reading
+    sem_ctl[1].sem_op = -1;
+    sem_ctl[1].sem_flg = 0;
+
+    semop(id_sem, sem_ctl, 2);
+
+    pop->writeCount--;
+    if(pop->writeCount == 0){
+        sem_ctl[0].sem_num = READ_TRY;//try reading
+        sem_ctl[0].sem_op = 1;
+        sem_ctl[0].sem_flg = 0;
+
+        semop(id_sem, sem_ctl, 1);
+    }
+
+    sem_ctl[0].sem_num = W_MUTEX;//try reading
+    sem_ctl[0].sem_op = 1;
+    sem_ctl[0].sem_flg = 0;
+
+    semop(id_sem, sem_ctl, 1);
 }
 
 int generate_individual(individual* ind, int type, unsigned long parent_gcd, unsigned long genes){
