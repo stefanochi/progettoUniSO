@@ -10,7 +10,7 @@ void intHandler(int dummy) {
     keepRunning = 0;
 }
 
-void set_handelr(){
+void set_handler(){
     struct sigaction act;
     struct sigaction oldact;
     sigset_t my_mask;
@@ -49,7 +49,7 @@ int main(int argc, char ** argv){
   id_semReady = get_sem_id(key_semReady);
   int msq_b = get_message_id(getpid());
 
-  set_handelr();
+  set_handler();
 
   ind_ready(id_semReady);
   wait_ready(id_semReady);
