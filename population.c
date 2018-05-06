@@ -85,7 +85,6 @@ individual* get_ind_by_pid(int pid, individual *ind_list, population *pop){
 int generate_population(population* pop, individual* ind_list, unsigned long genes){
     int i;
 
-    srand(time(NULL));
     for(i=0; i<pop->size; i++){
         if(pop->numbers_of_a == 0){
             generate_individual(ind_list + i, TYPE_A, 2, genes);

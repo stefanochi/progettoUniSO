@@ -21,6 +21,24 @@ void set_handelr(){
     sigaction(SIGINT, &act, &oldact);
 }
 
+individual get_best_partner(population * pop, individual * ind_list, individual my_ind){
+    individual ind_a;
+
+    if(pop->numbers_of_a > 0){
+        long max_gcd=0;
+        for (int j=0; j<pop->size; j++){
+            if ((ind_list+j)->type == 0){
+                long gcd_a = gcd((ind_list+j)->gene, my_ind.gene);
+                if (gcd_a > max_gcd){
+                    max_gcd = gcd_a;
+                    ind_a = *(ind_list+j);
+                }
+            }
+        }
+    }
+    return ind_a;
+}
+
 int main(int argc, char ** argv){
   population * pop;
   pop = createAttach (getppid(), 0);
@@ -44,34 +62,33 @@ int main(int argc, char ** argv){
 
   individual ind_a;
 
-  if(pop->numbers_of_a > 0){
-      long max_gcd=0;
-      for (int j=0; j<pop->size; j++){
-          if ((ind_list+j)->type == 0){
-              long gcd_a = gcd((ind_list+j)->gene, my_ind.gene);
-              if (gcd_a > max_gcd){
-                  max_gcd = gcd_a;
-                  ind_a = *(ind_list+j);
-              }
-          }
-      }
+  while(keepRunning){
+
+      ind_a = get_best_partner(pop, ind_list, my_ind);
+
+      int msq_a = get_message_id(ind_a.pid);
+
+      request req;
+      req.pid = my_ind.pid;
+      req.gene = my_ind.gene;
+
+      int res;
+
+      printf("[%d] sending request to pid A = %d\n",getpid(), ind_a.pid);
+      if(send_request(msq_a, &req) != -1){
+          printf("[%d] waiting response...\n", getpid());
+          if(keepRunning && wait_response(msq_b, &res) != -1){
+             printf("[%d] individual: %d response's is: %d\n", getpid(), ind_a.pid, res);
+             if(res == 1){
+                 keepRunning = 0;
+             }
+         }else{
+             fprintf(stderr, "[%d] failed to wait_response\n", getpid());
+         }
+     }else{
+         fprintf(stderr, "[%d] failed to send_request\n", getpid());
+     }
   }
-  int msq_a = get_message_id(ind_a.pid);
-
-  request req;
-  req.pid = my_ind.pid;
-  req.gene = my_ind.gene;
-
-  int res;
-
-  printf("[%d] sending request to pid A = %d\n",getpid(), ind_a.pid);
-  if(send_request(msq_a, &req) != -1){
-      if(keepRunning && wait_response(msq_b, &res) == -1){
-         printf("[%d] individual: %d response's is: %d\n", getpid(), ind_a.pid, res);
-      }
-      fprintf(stderr, "[%d] failed to wait_response\n", getpid());
-  }
-  fprintf(stderr, "[%d] failed to send_request\n", getpid());
 
   remove_msq(msq_b);
 
