@@ -3,6 +3,7 @@
 #include <sys/shm.h>
 #include <unistd.h>
 #include <signal.h>
+#include <math.h>
 #include "shm.h"
 #include "population.h"
 
@@ -14,7 +15,7 @@ void intHandler(int dummy) {
 
 int main(int argc, char ** argv){
 
-    int init_people = 5, i=0, j=0, status;
+    int init_people = 20, i=0, j=0, status;
     unsigned long genes = 5;
 
     int key = getpid();
@@ -25,7 +26,7 @@ int main(int argc, char ** argv){
     population* pop;
     individual* ind_list;
 
-    int dimension = sizeof(individual)*init_people + sizeof(population);
+    int dimension = sizeof(individual)*init_people + sizeof(population) + ((sizeof(relationship)*init_people)/2+1) * ((sizeof(relationship)*init_people)/2+1);
     pop = createAttach(key, dimension);
     ind_list = (individual*) pop + sizeof(population);
 

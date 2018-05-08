@@ -8,6 +8,11 @@
 #define TYPE_A 0
 #define TYPE_B 1
 
+typedef struct relationship{
+  int individual_a;
+  int individual_b;
+} relationship;
+
 typedef struct individual{
     int pid;
     int type;
@@ -44,3 +49,8 @@ int start_population(population * pop, individual * ind_list);
 int print_population(population* pop, individual* ind_list);
 
 long gcd(long gene_a, long gene_b);
+
+void * get_list_relationships(population * pop);
+void insert_relationship(relationship * rel, population * pop, int pid_a, int pid_b);
+void remove_relationship(relationship * rel, population * pop,int pid);
+void print_relationship(relationship * rel, population * pop);

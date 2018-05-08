@@ -159,7 +159,7 @@ int generate_individual(individual* ind, int type, unsigned long parent_gcd, uns
     }
     ind->name[i] = name;
 
-    ind->gene = (rand() % genes) + parent_gcd;
+    ind->gene = rand() % genes + parent_gcd;
 
     return ind->type;
 }
@@ -255,5 +255,44 @@ long gcd(long gene_a, long gene_b){
       return gcd(gene_a-gene_b, gene_b);
     }
     else return gcd(gene_a, gene_b-gene_a);
+  }
+}
+
+void * get_list_relationships(population * pop){
+  return pop+sizeof(population)+sizeof(individual)*pop->size;
+}
+
+void insert_relationship(relationship * rel, population * pop,int pid_a, int pid_b){
+  int end = ((sizeof(relationship)*pop->size)/2+1 * (sizeof(relationship)*pop->size)/2+1);
+  int i = 0;
+  while (i<end){
+    if (rel[i].individual_a == 0){
+      rel[i].individual_a = pid_a;
+      rel[i].individual_b = pid_b;
+    }
+    i++;
+  }
+}
+
+void remove_relationship(relationship * rel, population * pop,int pid){
+  int end = ((sizeof(relationship)*pop->size)/2+1 * (sizeof(relationship)*pop->size)/2+1);
+  int i = 0;
+  while (i<end){
+    if (rel[i].individual_a == pid || rel[i].individual_b == pid){
+      rel[i].individual_a = 0;
+      rel[i].individual_b = 0;
+    }
+    i++;
+  }
+}
+
+void print_relationship(relationship * rel, population * pop){
+  int end = ((sizeof(relationship)*pop->size)/2+1 * (sizeof(relationship)*pop->size)/2+1);
+  int i = 0;
+  while (i<end){
+    if (rel[i].individual_a != 0 || rel[i].individual_b != 0){
+      printf("pid a: %d, pid b = %d\n", rel[i].individual_a, rel[i].individual_b);
+    }
+    i++;
   }
 }
