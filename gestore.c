@@ -14,7 +14,7 @@ void intHandler(int dummy) {
 
 int main(int argc, char ** argv){
 
-    int init_people = 5, i=0, j=0, status;
+    int init_people = 20, i=0, j=0, status;
     unsigned long genes = 5;
 
     int key = getpid();
@@ -27,7 +27,7 @@ int main(int argc, char ** argv){
 
     int dimension = sizeof(individual)*init_people + sizeof(population);
     pop = createAttach(key, dimension);
-    ind_list = (individual*) pop + sizeof(population);
+    ind_list = (individual*) (pop + 1);
 
     struct sigaction act;
     struct sigaction oldact;
