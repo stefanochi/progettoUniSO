@@ -55,7 +55,7 @@ int main(int argc, char ** argv){
   wait_ready(id_sem);
 
   individual* ind_list;
-  ind_list = (individual*) pop + sizeof(population);
+  ind_list = (individual*) (pop + 1);
 
   individual my_ind;
   my_ind = *(get_ind_by_pid(getpid(), ind_list, pop));

@@ -28,7 +28,7 @@ int main(int argc, char ** argv){
 
     int dimension = sizeof(individual)*init_people + sizeof(population) + ((sizeof(relationship)*init_people)/2+1) * ((sizeof(relationship)*init_people)/2+1);
     pop = createAttach(key, dimension);
-    ind_list = (individual*) pop + sizeof(population);
+    ind_list = (individual*) (pop + 1);
 
     struct sigaction act;
     struct sigaction oldact;
