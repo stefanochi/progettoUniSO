@@ -277,19 +277,21 @@ void * get_list_relationships(population * pop){
 }
 
 void insert_relationship(relationship * rel, population * pop,int pid_a, int pid_b){
-  int end = ((sizeof(relationship)*pop->size)/2+1 * (sizeof(relationship)*pop->size)/2+1);
+  int end = (pop->size)/2+1 * (pop->size)/2+1;
+  int flag = 1;
   int i = 0;
-  while (i<end){
+  while (i<end && flag){
     if (rel[i].individual_a == 0){
       rel[i].individual_a = pid_a;
       rel[i].individual_b = pid_b;
+      flag = 0;
     }
     i++;
   }
 }
 
 void remove_relationship(relationship * rel, population * pop,int pid){
-  int end = ((sizeof(relationship)*pop->size)/2+1 * (sizeof(relationship)*pop->size)/2+1);
+  int end = (pop->size)/2+1 * (pop->size)/2+1;
   int i = 0;
   while (i<end){
     if (rel[i].individual_a == pid || rel[i].individual_b == pid){
@@ -301,12 +303,24 @@ void remove_relationship(relationship * rel, population * pop,int pid){
 }
 
 void print_relationship(relationship * rel, population * pop){
-  int end = ((sizeof(relationship)*pop->size)/2+1 * (sizeof(relationship)*pop->size)/2+1);
+  int end = (pop->size)/2+1 * (pop->size)/2+1;
   int i = 0;
   while (i<end){
     if (rel[i].individual_a != 0 || rel[i].individual_b != 0){
-      printf("pid a: %d, pid b = %d\n", rel[i].individual_a, rel[i].individual_b);
+      printf("[%d] pid a: %d, pid b = %d\n",getpid(),  rel[i].individual_a, rel[i].individual_b);
     }
     i++;
   }
+}
+
+int find_relationship(relationship * rel, population * pop, int pid_a, int pid_b){
+  int end = (pop->size)/2+1 * (pop->size)/2+1;
+  int i = 0;
+  while (i<end){
+    if (rel[i].individual_a == pid_a && rel[i].individual_b == pid_b){
+      return 1;
+    }
+    i++;
+  }
+  return 0;
 }

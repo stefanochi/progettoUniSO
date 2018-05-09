@@ -23,11 +23,13 @@ void set_handler(){
 
 individual get_best_partner(population * pop, individual * ind_list, individual my_ind){
     individual ind_a;
+    ind_a.pid = -1;
+    relationship * rel = get_list_relationships(pop);
 
     if(pop->numbers_of_a > 0){
         long max_gcd=0;
         for (int j=0; j<pop->size; j++){
-            if ((ind_list+j)->type == 0 && (ind_list + j)->status == 0){
+            if ((ind_list+j)->type == 0 && (ind_list + j)->status == 0 && find_relationship(rel, pop, (ind_list+j)->pid, my_ind.pid)==0){
                 long gcd_a = gcd((ind_list+j)->gene, my_ind.gene);
                 if (gcd_a > max_gcd){
                     max_gcd = gcd_a;
@@ -70,8 +72,12 @@ int main(int argc, char ** argv){
       ind_a = get_best_partner(pop, ind_list, my_ind);
       exit_read(id_sem, pop);
 
-      if(ind_a.pid == 0){
-          fprintf(stderr, "[%d] error: can't find partner\n", getpid());
+      //printf("[%d] ind_a: pid:%d, gene:%lu, status:%d\n", getpid(), ind_a.pid, ind_a.gene, ind_a.status);
+
+      if(ind_a.pid == -1){
+          //fprintf(stderr, "[%d] error: can't find partner\n", getpid());
+          //keepRunning = 0;
+          continue;
       }
 
       int msq_a = msgget(ind_a.pid, 0600);

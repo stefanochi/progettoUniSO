@@ -80,6 +80,7 @@ int main(int argc, char ** argv){
                 printf("[%d] refusing\n", getpid());
                 relationship * rel = get_list_relationships(pop);
                 insert_relationship(rel, pop, my_ind.pid, req.pid);
+                print_relationship(rel, pop);
                 send_response(msq_b, 0);
             }
         }
