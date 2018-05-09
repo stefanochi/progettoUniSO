@@ -38,15 +38,17 @@ void set_shm_sem(int id_sem){
     semctl (id_sem, RESOURCE, SETVAL, 1);
 }
 void entry_read(int id_sem, population * pop){
-    struct sembuf sem_ctl[2];
+    //fprintf(stderr, "[%d] entry read start\n", getpid());
+    struct sembuf sem_ctl[1];
     sem_ctl[0].sem_num = READ_TRY;//try reading
     sem_ctl[0].sem_op = -1;
     sem_ctl[0].sem_flg = 0;
+    semop(id_sem, sem_ctl, 1);
 
-    sem_ctl[1].sem_num = R_MUTEX;//readcout mutex
-    sem_ctl[1].sem_op = -1;
-    sem_ctl[1].sem_flg = 0;
-    semop(id_sem, sem_ctl, 2);
+    sem_ctl[0].sem_num = R_MUTEX;//readcout mutex
+    sem_ctl[0].sem_op = -1;
+    sem_ctl[0].sem_flg = 0;
+    semop(id_sem, sem_ctl, 1);
 
     pop->readCount++;
 
@@ -61,14 +63,17 @@ void entry_read(int id_sem, population * pop){
     sem_ctl[0].sem_num = R_MUTEX;
     sem_ctl[0].sem_op = 1;
     sem_ctl[0].sem_flg = 0;
+    semop(id_sem, sem_ctl, 1);
 
-    sem_ctl[1].sem_num = READ_TRY;
-    sem_ctl[1].sem_op = 1;
-    sem_ctl[1].sem_flg = 0;
+    sem_ctl[0].sem_num = READ_TRY;
+    sem_ctl[0].sem_op = 1;
+    sem_ctl[0].sem_flg = 0;
 
-    semop(id_sem, sem_ctl, 2);
+    semop(id_sem, sem_ctl, 1);
+    //fprintf(stderr, "[%d] entry read finish\n", getpid());
 }
 void exit_read(int id_sem, population * pop){
+    //fprintf(stderr, "[%d] exit read start\n", getpid());
     struct sembuf sem_ctl[2];
     sem_ctl[0].sem_num = R_MUTEX;
     sem_ctl[0].sem_op = -1;
@@ -90,9 +95,11 @@ void exit_read(int id_sem, population * pop){
     sem_ctl[0].sem_flg = 0;
 
     semop(id_sem, sem_ctl, 1);
+    //fprintf(stderr, "[%d] exit read finish\n", getpid());
 }
 void entry_write(int id_sem, population * pop){
-    struct sembuf sem_ctl[2];
+    //fprintf(stderr, "[%d] entry write start\n", getpid());
+    struct sembuf sem_ctl[1];
     sem_ctl[0].sem_num = W_MUTEX;//try reading
     sem_ctl[0].sem_op = -1;
     sem_ctl[0].sem_flg = 0;
@@ -109,39 +116,45 @@ void entry_write(int id_sem, population * pop){
     sem_ctl[0].sem_num = W_MUTEX;//try reading
     sem_ctl[0].sem_op = 1;
     sem_ctl[0].sem_flg = 0;
+    semop(id_sem, sem_ctl, 1);
 
-    sem_ctl[1].sem_num = RESOURCE;//try reading
-    sem_ctl[1].sem_op = -1;
-    sem_ctl[1].sem_flg = 0;
+    sem_ctl[0].sem_num = RESOURCE;//try reading
+    sem_ctl[0].sem_op = -1;
+    sem_ctl[0].sem_flg = 0;
 
-    semop(id_sem, sem_ctl, 2);
+    semop(id_sem, sem_ctl, 1);
+    //fprintf(stderr, "[%d] entry write finish\n", getpid());
 }
 void exit_write(int id_sem, population * pop){
+    //fprintf(stderr, "[%d] exit write start\n", getpid());
     struct sembuf sem_ctl[2];
-    sem_ctl[0].sem_num = RESOURCE;//try reading
+    sem_ctl[0].sem_num = RESOURCE;
     sem_ctl[0].sem_op = 1;
     sem_ctl[0].sem_flg = 0;
 
-    sem_ctl[1].sem_num = W_MUTEX;//try reading
-    sem_ctl[1].sem_op = -1;
-    sem_ctl[1].sem_flg = 0;
+    semop(id_sem, sem_ctl, 1);
 
-    semop(id_sem, sem_ctl, 2);
+    sem_ctl[0].sem_num = W_MUTEX;
+    sem_ctl[0].sem_op = -1;
+    sem_ctl[0].sem_flg = 0;
+
+    semop(id_sem, sem_ctl, 1);
 
     pop->writeCount--;
     if(pop->writeCount == 0){
-        sem_ctl[0].sem_num = READ_TRY;//try reading
+        sem_ctl[0].sem_num = READ_TRY;
         sem_ctl[0].sem_op = 1;
         sem_ctl[0].sem_flg = 0;
 
         semop(id_sem, sem_ctl, 1);
     }
 
-    sem_ctl[0].sem_num = W_MUTEX;//try reading
+    sem_ctl[0].sem_num = W_MUTEX;
     sem_ctl[0].sem_op = 1;
     sem_ctl[0].sem_flg = 0;
 
     semop(id_sem, sem_ctl, 1);
+    //fprintf(stderr, "[%d] exit write finish\n", getpid());
 }
 
 int generate_individual(individual* ind, int type, unsigned long parent_gcd, unsigned long genes){
@@ -160,6 +173,7 @@ int generate_individual(individual* ind, int type, unsigned long parent_gcd, uns
     ind->name[i] = name;
 
     ind->gene = rand() % genes + parent_gcd;
+    ind->status = 0;
 
     return ind->type;
 }
@@ -194,7 +208,7 @@ int start_individual(individual * ind){
 
 individual* get_ind_by_pid(int pid, individual *ind_list, population *pop){
     individual * my_ind;
-    for(int i; i<pop->size; i++){
+    for(int i=0; i<pop->size; i++){
       if ((ind_list+i)->pid == pid){
         my_ind = ind_list+i;
         return my_ind;
@@ -259,7 +273,7 @@ long gcd(long gene_a, long gene_b){
 }
 
 void * get_list_relationships(population * pop){
-  return pop+sizeof(population)+sizeof(individual)*pop->size;
+  return ((void *) pop) + sizeof(population) + pop->size*sizeof(individual);
 }
 
 void insert_relationship(relationship * rel, population * pop,int pid_a, int pid_b){

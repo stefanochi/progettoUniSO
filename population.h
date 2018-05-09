@@ -18,6 +18,7 @@ typedef struct individual{
     int type;
     char name[MAX_NAME_SIZE];
     unsigned long gene;
+    int status;
 } individual;
 
 typedef struct population{

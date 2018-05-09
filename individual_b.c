@@ -27,7 +27,7 @@ individual get_best_partner(population * pop, individual * ind_list, individual 
     if(pop->numbers_of_a > 0){
         long max_gcd=0;
         for (int j=0; j<pop->size; j++){
-            if ((ind_list+j)->type == 0){
+            if ((ind_list+j)->type == 0 && (ind_list + j)->status == 0){
                 long gcd_a = gcd((ind_list+j)->gene, my_ind.gene);
                 if (gcd_a > max_gcd){
                     max_gcd = gcd_a;
@@ -47,7 +47,7 @@ int main(int argc, char ** argv){
   int key_semReady = getppid();
 
   id_sem = get_sem_id(key_semReady);
-  int msq_b = get_message_id(getpid());
+  int msq_b = create_msq(getpid());
 
   set_handler();
 
@@ -58,7 +58,9 @@ int main(int argc, char ** argv){
   ind_list = (individual*) (pop + 1);
 
   individual my_ind;
+  entry_read(id_sem, pop);
   my_ind = *(get_ind_by_pid(getpid(), ind_list, pop));
+  exit_read(id_sem, pop);
 
   individual ind_a;
 
@@ -68,7 +70,11 @@ int main(int argc, char ** argv){
       ind_a = get_best_partner(pop, ind_list, my_ind);
       exit_read(id_sem, pop);
 
-      int msq_a = get_message_id(ind_a.pid);
+      if(ind_a.pid == 0){
+          fprintf(stderr, "[%d] error: can't find partner\n", getpid());
+      }
+
+      int msq_a = msgget(ind_a.pid, 0600);
 
       request req;
       req.pid = my_ind.pid;
@@ -92,7 +98,9 @@ int main(int argc, char ** argv){
      }
   }
 
-  remove_msq(msq_b);
+  if(remove_msq(msq_b)){
+      fprintf(stderr, "[%d] failed to remove msq: %s\n", getpid(), strerror(errno));
+  }
 
   exit(0);
 }

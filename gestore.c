@@ -15,8 +15,8 @@ void intHandler(int dummy) {
 
 int main(int argc, char ** argv){
 
-    int init_people = 20, i=0, j=0, status;
-    unsigned long genes = 5;
+    int init_people = 6, i=0, j=0, status;
+    unsigned long genes = 10;
 
     int key = getpid();
     int id_sem = get_sem_id(key);
@@ -57,11 +57,13 @@ int main(int argc, char ** argv){
     start_population(pop, ind_list);
     print_population(pop, ind_list);
 
+    //sleep(30);
     ind_ready(id_sem);
     wait_ready(id_sem);
 
-    while(wait(&status) > 0 && keepRunning){
-        //do nothing
+    int pid;
+    while((pid=wait(&status)) > 0 && keepRunning){
+        printf("GESTORE: process %d just stopped\n", pid);
     }
 
     kill(-getpid(), SIGINT);

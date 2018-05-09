@@ -3,6 +3,8 @@
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <sys/msg.h>
+#include <errno.h>
+#include <string.h>
 
 typedef struct request{
     unsigned int pid;
@@ -19,7 +21,7 @@ typedef struct msg_response{
     int res;
 } msg_response;
 
-int get_message_id(int msg_key);
+int create_msq(int msg_key);
 int remove_msq(int msq_id);
 int send_request(int msq_id, request * req);
 int send_response(int msq_id, int res);

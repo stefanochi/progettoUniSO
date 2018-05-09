@@ -1,9 +1,7 @@
 #include <stdlib.h>
-#include <errno.h>
-#include <string.h>
 #include "msq.h"
 
-int get_message_id(int msq_key){
+int create_msq(int msq_key){
     return msgget(msq_key, IPC_CREAT | 0600);
 }
 
