@@ -15,7 +15,7 @@ void intHandler(int dummy) {
 
 int main(int argc, char ** argv){
 
-    int init_people = 10, i=0, j=0, status;
+    int init_people = 8, i=0, j=0, status;
     unsigned long genes = 10;
 
     int key = getpid();

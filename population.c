@@ -324,3 +324,27 @@ int find_relationship(relationship * rel, population * pop, int pid_a, int pid_b
   }
   return 0;
 }
+
+int request_from_all(relationship * rel, population * pop, int pid_a){
+    individual * ind_list = (individual *)(pop + 1);
+    int end = (pop->size)/2+1 * (pop->size)/2+1;
+    int i, j;
+    for(i=0; i<pop->size; i++){
+        if((ind_list + i)->type == 1 && (ind_list + i)->status == 0){
+            int flag = 0;
+            for(j=0; j<end; j++){
+                if((rel + j)->individual_a == pid_a){
+                    if((rel+j)->individual_b == (ind_list + i)->pid){
+                        flag = 1;
+                        printf("test1\n");
+                    }
+                }
+            }
+            if(flag == 0){
+                printf("test2\n");
+                return 0;
+            }
+        }
+    }
+    return 1;
+}

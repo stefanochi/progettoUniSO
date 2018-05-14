@@ -55,10 +55,11 @@ int main(int argc, char ** argv){
     entry_read(id_sem, pop);
     my_ind_ptr = (get_ind_by_pid(getpid(), ind_list, pop));
     my_ind = *my_ind_ptr;
-    
     exit_read(id_sem, pop);
 
     request req;
+
+    int target = my_ind.gene;
 
     while(keepRunning){
         if(wait_request(msq_a, &req) != -1){
@@ -82,6 +83,10 @@ int main(int argc, char ** argv){
                 insert_relationship(rel, pop, my_ind.pid, req.pid);
                 print_relationship(rel, pop);
                 send_response(msq_b, 0);
+                if(request_from_all(rel, pop, my_ind.pid)){
+                    printf("[%d] resetting relationships\n", getpid());
+                    remove_relationship(rel, pop, my_ind.pid);
+                }
             }
         }
     }

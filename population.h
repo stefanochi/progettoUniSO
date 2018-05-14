@@ -56,3 +56,4 @@ void insert_relationship(relationship * rel, population * pop, int pid_a, int pi
 void remove_relationship(relationship * rel, population * pop,int pid);
 void print_relationship(relationship * rel, population * pop);
 int find_relationship(relationship * rel, population * pop, int pid_a, int pid_b);
+int request_from_all(relationship * rel, population * pop, int pid_a);

@@ -59,9 +59,10 @@ int main(int argc, char ** argv){
   individual* ind_list;
   ind_list = (individual*) (pop + 1);
 
-  individual my_ind;
+  individual *my_ind_ptr, my_ind;
   entry_read(id_sem, pop);
-  my_ind = *(get_ind_by_pid(getpid(), ind_list, pop));
+  my_ind_ptr = get_ind_by_pid(getpid(), ind_list, pop);
+  my_ind = *my_ind_ptr;
   exit_read(id_sem, pop);
 
   individual ind_a;
@@ -94,7 +95,10 @@ int main(int argc, char ** argv){
           if(keepRunning && wait_response(msq_b, &res) != -1){
              printf("[%d] individual: %d response's is: %d\n", getpid(), ind_a.pid, res);
              if(res == 1){
-                 keepRunning = 0;
+                keepRunning = 0;
+                entry_write(id_sem, pop);
+                my_ind_ptr->status = 1;
+                exit_write(id_sem, pop);
              }
          }else{
              fprintf(stderr, "[%d] failed to wait_response\n", getpid());
