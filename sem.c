@@ -64,9 +64,7 @@ void exit_read(int id_sem, int * readCount){
     sem_ctl[0].sem_flg = 0;
 
     semop(id_sem, sem_ctl, 1);
-    *readCount --;
-
-    (*readCount)++;
+    (*readCount) --;
 
     if(*readCount == 0){
         sem_ctl[0].sem_num = RESOURCE;
@@ -91,7 +89,7 @@ void entry_write(int id_sem, int * writeCount){
     sem_ctl[0].sem_flg = 0;
     semop(id_sem, sem_ctl, 1);
 
-    *writeCount++;
+    (*writeCount)++;
     if(*writeCount == 1){
         sem_ctl[0].sem_num = READ_TRY;//try reading
         sem_ctl[0].sem_op = -1;
@@ -126,7 +124,7 @@ void exit_write(int id_sem, int * writeCount){
 
     semop(id_sem, sem_ctl, 1);
 
-    *writeCount--;
+    (*writeCount)--;
     if(*writeCount == 0){
         sem_ctl[0].sem_num = READ_TRY;
         sem_ctl[0].sem_op = 1;
