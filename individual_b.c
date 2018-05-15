@@ -3,6 +3,7 @@
 #include "shm.h"
 #include "population.h"
 #include "msq.h"
+#include "sem.h"
 
 static volatile int keepRunning = 1;
 
@@ -45,33 +46,36 @@ int main(int argc, char ** argv){
   population * pop;
   pop = createAttach (getppid(), 0);
 
-  int id_sem;
+  int id_sem_ready, id_sem_shm, id_sem_relation;
   int key_semReady = getppid();
 
-  id_sem = get_sem_id(key_semReady);
+  id_sem_ready = get_sem_ready(key_semReady);
+  id_sem_shm = get_sem_id(1234);
+  id_sem_relation = get_sem_id(5432);
+
   int msq_b = create_msq(getpid());
 
   set_handler();
 
-  ind_ready(id_sem);
-  wait_ready(id_sem);
+  ind_ready(id_sem_ready);
+  wait_ready(id_sem_ready);
 
   individual* ind_list;
   ind_list = (individual*) (pop + 1);
 
   individual *my_ind_ptr, my_ind;
-  entry_read(id_sem, pop);
+  entry_read(id_sem_shm, &(pop->readCount_shm));
   my_ind_ptr = get_ind_by_pid(getpid(), ind_list, pop);
   my_ind = *my_ind_ptr;
-  exit_read(id_sem, pop);
+  exit_read(id_sem_shm, &(pop->readCount_shm));
 
   individual ind_a;
 
   while(keepRunning){
 
-      entry_read(id_sem, pop);
+      entry_read(id_sem_shm, &(pop->readCount_shm));
       ind_a = get_best_partner(pop, ind_list, my_ind);
-      exit_read(id_sem, pop);
+      exit_read(id_sem_shm, &(pop->readCount_shm));
 
       //printf("[%d] ind_a: pid:%d, gene:%lu, status:%d\n", getpid(), ind_a.pid, ind_a.gene, ind_a.status);
 
@@ -96,9 +100,12 @@ int main(int argc, char ** argv){
              printf("[%d] individual: %d response's is: %d\n", getpid(), ind_a.pid, res);
              if(res == 1){
                 keepRunning = 0;
-                entry_write(id_sem, pop);
+                printf("[%d] entry write", getpid());
+                entry_write(id_sem_shm, &(pop->writeCount_shm));
                 my_ind_ptr->status = 1;
-                exit_write(id_sem, pop);
+                exit_write(id_sem_shm, &(pop->writeCount_shm));
+                printf("[%d] exit write", getpid());
+
              }
          }else{
              fprintf(stderr, "[%d] failed to wait_response\n", getpid());

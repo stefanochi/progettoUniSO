@@ -64,7 +64,7 @@ void exit_read(int id_sem, int * readCount){
     sem_ctl[0].sem_flg = 0;
 
     semop(id_sem, sem_ctl, 1);
-    pop->readCount --;
+    *readCount --;
 
     (*readCount)++;
 

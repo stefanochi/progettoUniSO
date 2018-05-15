@@ -3,6 +3,7 @@
 #include "population.h"
 #include "msq.h"
 #include "shm.h"
+#include "sem.h"
 
 static volatile int keepRunning = 1;
 
@@ -40,22 +41,24 @@ int main(int argc, char ** argv){
     individual* ind_list;
     ind_list = (individual*) (pop + 1);
 
-    int id_sem;
+    int id_sem_ready, id_sem_shm, id_sem_relation;
     int key_semReady = getppid();
 
-    id_sem = get_sem_id(key_semReady);
+    id_sem_ready = get_sem_ready(key_semReady);
+    id_sem_shm = get_sem_id(1234);
+    id_sem_relation = get_sem_id(5432);
 
     int msq_a = create_msq(getpid());
 
     
-    ind_ready(id_sem);
-    wait_ready(id_sem);
+    ind_ready(id_sem_ready);
+    wait_ready(id_sem_ready);
 
     individual * my_ind_ptr, my_ind;
-    entry_read(id_sem, pop);
+    entry_read(id_sem_shm, &(pop->readCount_shm));
     my_ind_ptr = (get_ind_by_pid(getpid(), ind_list, pop));
     my_ind = *my_ind_ptr;
-    exit_read(id_sem, pop);
+    exit_read(id_sem_shm, &(pop->readCount_shm));
 
     request req;
 
@@ -68,24 +71,37 @@ int main(int argc, char ** argv){
             if(req.gene == my_ind.gene){
                 printf("[%d] accepting\n", getpid());
                 send_response(msq_b, 1);
-                //fprintf(stderr, "[%d] entry write\n", getpid());
-                entry_write(id_sem, pop);
-                //fprintf(stderr, "[%d] entry write finish\n", getpid());
+                
+                entry_write(id_sem_shm, &(pop->writeCount_shm));
                 my_ind_ptr->status = 1;
-                //fprintf(stderr, "[%d] exit write\n", getpid());
-                exit_write(id_sem, pop);
-                //fprintf(stderr, "[%d] refuse all\n", getpid());
                 refuse_all(msq_a);
+                exit_write(id_sem_shm, &(pop->writeCount_shm));
+                
                 keepRunning = 0;
             }else{
                 printf("[%d] refusing\n", getpid());
                 relationship * rel = get_list_relationships(pop);
+                
+
+                entry_write(id_sem_relation, &(pop->writeCount_relation));
                 insert_relationship(rel, pop, my_ind.pid, req.pid);
+                exit_write(id_sem_relation, &(pop->writeCount_relation));
+                
+                entry_read(id_sem_relation, &(pop->readCount_relation));
                 print_relationship(rel, pop);
+                exit_read(id_sem_relation, &(pop->readCount_relation));
+                
                 send_response(msq_b, 0);
+                entry_read(id_sem_relation, &(pop->readCount_relation));
                 if(request_from_all(rel, pop, my_ind.pid)){
+                    exit_read(id_sem_relation, &(pop->readCount_relation));
                     printf("[%d] resetting relationships\n", getpid());
+
+                    entry_write(id_sem_relation, &(pop->writeCount_relation));
                     remove_relationship(rel, pop, my_ind.pid);
+                    exit_write(id_sem_relation, &(pop->writeCount_relation));
+                }else{
+                    exit_read(id_sem_relation, &(pop->readCount_relation));
                 }
             }
         }

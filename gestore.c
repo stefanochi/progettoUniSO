@@ -5,7 +5,9 @@
 #include <signal.h>
 #include <math.h>
 #include "shm.h"
+#include "sem.h"
 #include "population.h"
+
 
 static volatile int keepRunning = 1;
 
@@ -19,9 +21,12 @@ int main(int argc, char ** argv){
     unsigned long genes = 10;
 
     int key = getpid();
-    int id_sem = get_sem_id(key);
-    set_ready(id_sem, init_people);
-    set_shm_sem(id_sem);
+    int id_sem_ready = get_sem_ready(key);
+    int id_sem_shm = get_sem_id(1234);
+    int id_sem_relation = get_sem_id(5432);
+    set_ready(id_sem_ready, init_people);
+    set_shm_sem(id_sem_shm);
+    set_shm_sem(id_sem_relation);
 
     population* pop;
     individual* ind_list;
@@ -48,8 +53,10 @@ int main(int argc, char ** argv){
     pop->size = init_people;
     pop->numbers_of_a = 0;
     pop->numbers_of_b = 0;
-    pop->readCount = 0;
-    pop->writeCount = 0;
+    pop->readCount_shm = 0;
+    pop->writeCount_shm = 0;
+    pop->readCount_relation = 0;
+    pop->writeCount_relation = 0;
 
     srand(0);
 
@@ -58,8 +65,8 @@ int main(int argc, char ** argv){
     print_population(pop, ind_list);
 
     //sleep(30);
-    ind_ready(id_sem);
-    wait_ready(id_sem);
+    ind_ready(id_sem_ready);
+    wait_ready(id_sem_ready);
 
     int pid;
     while((pid=wait(&status)) > 0 && keepRunning){
@@ -69,7 +76,9 @@ int main(int argc, char ** argv){
     kill(-getpid(), SIGINT);
 
     removeShm(key, dimension);
-    semctl(id_sem, 0, IPC_RMID);
+    semctl(id_sem_shm, 0, IPC_RMID);
+    semctl(id_sem_ready, 0, IPC_RMID);
+    semctl(id_sem_relation, 0, IPC_RMID);
 
     exit(0);
 }
