@@ -17,7 +17,7 @@ void intHandler(int dummy) {
 
 int main(int argc, char ** argv){
 
-    int init_people = 500, i=0, j=0, status;
+    int init_people = 20, i=0, j=0, status;
     unsigned long genes = 10;
 
     int key = getpid();
@@ -88,6 +88,11 @@ int main(int argc, char ** argv){
 
         long gcd_parent = gcd(partner1->gene, partner2->gene);
 
+        pop->numbers_of_a--;
+        pop->numbers_of_b--;
+
+        //printf("GESTORE numbers of a:%d\tnumbers of b: %d\n", pop->numbers_of_a, pop->numbers_of_b);
+
         entry_write(id_sem_shm, &(pop->writeCount_shm));
         if(pop->numbers_of_a == 0){
             generate_individual(partner1, TYPE_A, gcd_parent, genes);
@@ -129,13 +134,9 @@ int main(int argc, char ** argv){
 
         print_population(pop, ind_list);
 
-        //sleep(5);
+        //sleep(1);
         
         exit_write(id_sem_shm, &(pop->writeCount_shm));
-
-       
-
-
     }
 
     kill(-getpid(), SIGINT);

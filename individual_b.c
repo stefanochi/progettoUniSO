@@ -63,6 +63,8 @@ int main(int argc, char ** argv){
   individual* ind_list;
   ind_list = (individual*) (pop + 1);
 
+  relationship * rel = get_list_relationships(pop);
+
   individual *my_ind_ptr, my_ind;
   entry_write(id_sem_shm, &(pop->writeCount_shm));
   my_ind_ptr = get_ind_by_pid(getpid(), ind_list, pop);
@@ -94,16 +96,21 @@ int main(int argc, char ** argv){
 
       int res;
 
-      printf("[%d] sending request to pid A = %d\n",getpid(), ind_a.pid);
+      //printf("[%d] sending request to pid A = %d\n",getpid(), ind_a.pid);
       if(send_request(msq_a, &req) != -1){
-          printf("[%d] waiting response...\n", getpid());
+          //printf("[%d] waiting response...\n", getpid());
           if(keepRunning && wait_response(msq_b, &res) != -1){
-             printf("[%d] individual: %d response's is: %d\n", getpid(), ind_a.pid, res);
+             //printf("[%d] individual: %d response's is: %d\n", getpid(), ind_a.pid, res);
              if(res == 1){
+                printf("[%d] ind: %d accepted request\n", getpid(), ind_a.pid);
                 keepRunning = 0;
                 entry_write(id_sem_shm, &(pop->writeCount_shm));
                 my_ind_ptr->status = ind_a.pid;
                 exit_write(id_sem_shm, &(pop->writeCount_shm));
+
+                entry_write(id_sem_relation, &(pop->writeCount_relation));
+                remove_relationship(rel, pop, my_ind.pid);
+                exit_write(id_sem_relation, &(pop->writeCount_relation));
              }
          }else{
              fprintf(stderr, "[%d] failed to wait_response\n", getpid());

@@ -6,7 +6,7 @@ int create_msq(int msq_key){
 }
 
 int remove_msq(int msq_id){
-    printf("[%d] removing msq\n", getpid());
+    //printf("[%d] removing msq\n", getpid());
     return msgctl(msq_id, IPC_RMID, NULL);
 }
 

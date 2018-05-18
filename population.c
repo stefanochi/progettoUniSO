@@ -158,7 +158,7 @@ void * get_list_relationships(population * pop){
 }
 
 void insert_relationship(relationship * rel, population * pop,int pid_a, int pid_b){
-  int end = (pop->size)/2+1 * (pop->size)/2+1;
+  int end = ((pop->size)/2+1) * ((pop->size)/2+1);
   int flag = 1;
   int i = 0;
   while (i<end && flag){
@@ -172,7 +172,7 @@ void insert_relationship(relationship * rel, population * pop,int pid_a, int pid
 }
 
 void remove_relationship(relationship * rel, population * pop,int pid){
-  int end = (pop->size)/2+1 * (pop->size)/2+1;
+  int end = ((pop->size)/2+1) * ((pop->size)/2+1);
   int i = 0;
   while (i<end){
     if (rel[i].individual_a == pid || rel[i].individual_b == pid){
@@ -184,7 +184,7 @@ void remove_relationship(relationship * rel, population * pop,int pid){
 }
 
 void print_relationship(relationship * rel, population * pop){
-  int end = (pop->size)/2+1 * (pop->size)/2+1;
+  int end = ((pop->size)/2+1) * ((pop->size)/2+1);
   int i = 0;
   while (i<end){
     if (rel[i].individual_a != 0 || rel[i].individual_b != 0){
@@ -195,7 +195,7 @@ void print_relationship(relationship * rel, population * pop){
 }
 
 int find_relationship(relationship * rel, population * pop, int pid_a, int pid_b){
-  int end = (pop->size)/2+1 * (pop->size)/2+1;
+  int end = ((pop->size)/2+1) * ((pop->size)/2+1);
   int i = 0;
   while (i<end){
     if (rel[i].individual_a == pid_a && rel[i].individual_b == pid_b){
@@ -208,7 +208,7 @@ int find_relationship(relationship * rel, population * pop, int pid_a, int pid_b
 
 int request_from_all(relationship * rel, population * pop, int pid_a){
     individual * ind_list = (individual *)(pop + 1);
-    int end = (pop->size)/2+1 * (pop->size)/2+1;
+    int end = ((pop->size)/2+1) * ((pop->size)/2+1);
     int i, j;
     for(i=0; i<pop->size; i++){
         if((ind_list + i)->type == 1 && (ind_list + i)->status == 0){
