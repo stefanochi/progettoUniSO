@@ -29,6 +29,14 @@ void ind_ready(int id_sem){
 
     semop(id_sem, &ops, 1);
 }
+void stop_ready(int id_sem){
+    struct sembuf ops;
+    ops.sem_num = SEM_READY;
+    ops.sem_op = 1;
+    ops.sem_flg = 0;
+
+    semop(id_sem, &ops, 1);
+}
 
 int generate_individual(individual* ind, int type, unsigned long parent_gcd, unsigned long genes){
     char name;
@@ -46,7 +54,7 @@ int generate_individual(individual* ind, int type, unsigned long parent_gcd, uns
     ind->name[i] = name;
 
     ind->gene = rand() % genes + parent_gcd;
-    ind->status = 0;
+    ind->status = -1;
 
     return ind->type;
 }
@@ -124,9 +132,9 @@ int start_population(population * pop, individual * ind_list){
 int print_population(population* pop, individual* ind_list){
     int i;
 
-    printf("PID\tTYPE\tNAME\tGENE\n");
+    printf("PID\tTYPE\tNAME\tGENE\tSTATUS\n");
     for(i=0; i<pop->size; i++){
-        printf("%d\t%i\t%s\t%lu\n", (ind_list+i)->pid, (ind_list+i)->type, (ind_list+i)->name, (ind_list+i)->gene);
+        printf("%d\t%i\t%s\t%lu\t%d\n", (ind_list+i)->pid, (ind_list+i)->type, (ind_list+i)->name, (ind_list+i)->gene, (ind_list+i)->status);
     }
 }
 

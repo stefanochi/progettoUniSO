@@ -36,6 +36,7 @@ int get_sem_ready(int key);
 void set_ready(int id_sem, int init_people);
 void wait_ready(int id_sem);
 void ind_ready(int id_sem);
+void stop_ready(int id_sem);
 
 int start_individual(individual * ind);
 int generate_individual(individual* ind, int type, unsigned long parent_gcd, unsigned long genes);

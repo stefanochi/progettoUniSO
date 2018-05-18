@@ -55,10 +55,11 @@ int main(int argc, char ** argv){
     wait_ready(id_sem_ready);
 
     individual * my_ind_ptr, my_ind;
-    entry_read(id_sem_shm, &(pop->readCount_shm));
+    entry_write(id_sem_shm, &(pop->writeCount_shm));
     my_ind_ptr = (get_ind_by_pid(getpid(), ind_list, pop));
+    my_ind_ptr->status = 0;
     my_ind = *my_ind_ptr;
-    exit_read(id_sem_shm, &(pop->readCount_shm));
+    exit_write(id_sem_shm, &(pop->writeCount_shm));
 
     request req;
 
@@ -73,7 +74,7 @@ int main(int argc, char ** argv){
                 send_response(msq_b, 1);
                 
                 entry_write(id_sem_shm, &(pop->writeCount_shm));
-                my_ind_ptr->status = 1;
+                my_ind_ptr->status = req.pid;
                 refuse_all(msq_a);
                 exit_write(id_sem_shm, &(pop->writeCount_shm));
                 

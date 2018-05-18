@@ -64,10 +64,11 @@ int main(int argc, char ** argv){
   ind_list = (individual*) (pop + 1);
 
   individual *my_ind_ptr, my_ind;
-  entry_read(id_sem_shm, &(pop->readCount_shm));
+  entry_write(id_sem_shm, &(pop->writeCount_shm));
   my_ind_ptr = get_ind_by_pid(getpid(), ind_list, pop);
+  my_ind_ptr->status = 0;
   my_ind = *my_ind_ptr;
-  exit_read(id_sem_shm, &(pop->readCount_shm));
+  exit_write(id_sem_shm, &(pop->writeCount_shm));
 
   individual ind_a;
 
@@ -100,12 +101,9 @@ int main(int argc, char ** argv){
              printf("[%d] individual: %d response's is: %d\n", getpid(), ind_a.pid, res);
              if(res == 1){
                 keepRunning = 0;
-                printf("[%d] entry write", getpid());
                 entry_write(id_sem_shm, &(pop->writeCount_shm));
-                my_ind_ptr->status = 1;
+                my_ind_ptr->status = ind_a.pid;
                 exit_write(id_sem_shm, &(pop->writeCount_shm));
-                printf("[%d] exit write", getpid());
-
              }
          }else{
              fprintf(stderr, "[%d] failed to wait_response\n", getpid());

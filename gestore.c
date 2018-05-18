@@ -17,7 +17,7 @@ void intHandler(int dummy) {
 
 int main(int argc, char ** argv){
 
-    int init_people = 8, i=0, j=0, status;
+    int init_people = 500, i=0, j=0, status;
     unsigned long genes = 10;
 
     int key = getpid();
@@ -71,6 +71,71 @@ int main(int argc, char ** argv){
     int pid;
     while((pid=wait(&status)) > 0 && keepRunning){
         printf("GESTORE: process %d just stopped\n", pid);
+
+        stop_ready(id_sem_ready);
+        
+        entry_read(id_sem_shm, &(pop->readCount_shm));
+        individual * partner1 = get_ind_by_pid(pid, ind_list, pop);
+        int partner2_pid = partner1->status;
+        individual * partner2 = get_ind_by_pid(partner2_pid, ind_list, pop);
+        exit_read(id_sem_shm, &(pop->readCount_shm));
+
+        waitpid(partner2_pid, &status, 0);
+
+        stop_ready(id_sem_ready);
+        stop_ready(id_sem_ready);
+        printf("GESTORE: process %d just stopped after %d\n", partner2_pid, pid);
+
+        long gcd_parent = gcd(partner1->gene, partner2->gene);
+
+        entry_write(id_sem_shm, &(pop->writeCount_shm));
+        if(pop->numbers_of_a == 0){
+            generate_individual(partner1, TYPE_A, gcd_parent, genes);
+            pop->numbers_of_a++;
+        }
+        else if(pop->numbers_of_b == 0){
+            generate_individual(partner1, TYPE_B, gcd_parent, genes);
+            pop->numbers_of_b++;
+        }
+        else{
+            if(generate_individual(partner1, -1, gcd_parent, genes) == 0)
+                pop->numbers_of_a++;
+            else
+                pop->numbers_of_b++;
+        }
+        if(pop->numbers_of_a == 0){
+            generate_individual(partner2, TYPE_A, gcd_parent, genes);
+            pop->numbers_of_a++;
+        }
+        else if(pop->numbers_of_b == 0){
+            generate_individual(partner2, TYPE_B, gcd_parent, genes);
+            pop->numbers_of_b++;
+        }
+        else{
+            if(generate_individual(partner2, -1, gcd_parent, genes) == 0)
+                pop->numbers_of_a++;
+            else
+                pop->numbers_of_b++;
+        }
+
+        start_individual(partner1);
+        start_individual(partner2);
+
+        ind_ready(id_sem_ready);
+        wait_ready(id_sem_ready);
+
+        printf("GESTORE: individual [%d] just started\n", partner1->pid);
+        printf("GESTORE: individual [%d] just started\n", partner2->pid);
+
+        print_population(pop, ind_list);
+
+        //sleep(5);
+        
+        exit_write(id_sem_shm, &(pop->writeCount_shm));
+
+       
+
+
     }
 
     kill(-getpid(), SIGINT);
